@@ -1,0 +1,84 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01//EN" "http://www.w3.org/TR/html4/strict.dtd">
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<title>Conexion BD Ycosio</title>
+
+<script type="text/javascript">
+
+var peticion;
+var seleccionadoo=null;
+
+function descargarArchivo(funcion){
+  peticion=iniciaPeticion();
+  if(peticion)
+      {
+        peticion.onreadystatechange=muestraContenido;
+        peticion.open("POST","../servidor/conexionBDphp.php",true);
+        peticion.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
+
+        if(funcion=="consulta")
+          peticion.send('funcion=consulta&campos=*&tabla=ycosio&valores=');
+        else if(funcion=="elimina")
+        {
+          peticion.send('funcion=elimina&campos=*&tabla=ycosio&valores=' + seleccionadoo);
+          document.getElementById("contenidos2").innerHTML="";
+        }
+        else
+        {
+          var valores = "'" + document.getElementById("Cuenta").value + "'";
+          valores += ",'" + document.getElementById("Nombre").value + "'";
+          valores += ",'" + document.getElementById("Escuela").value + "'";
+          peticion.send('funcion=inserta&tabla=ycosio&campos=&valores=' + valores);
+
+          document.getElementById("Cuenta").value="";
+          document.getElementById("Nombre").value="";
+          document.getElementById("Escuela").value="";
+
+          document.getElementById("contenidos2").innerHTML="";
+        }
+      }
+}
+
+function iniciaPeticion(){
+  if(window.XMLHttpRequest)
+    return new XMLHttpRequest();
+  else if(window.ActiveXObject)
+    return new ActiveXObject("Microsoft.XMLHttp");
+}
+
+function muestraContenido(){
+    if(peticion.readyState == 4)
+      if(peticion.status == 200)
+      {
+        document.getElementById("contenidos").innerHTML=peticion.responseText;
+      }
+}
+
+function seleccionado(element){
+  document.getElementById("contenidos2").innerHTML=document.getElementById(element).innerHTML;
+  seleccionadoo=element;
+}
+
+</script>
+</head>
+<body>
+
+<div id="nuevo">
+Cuenta: <input type="text" id="Cuenta" name="Cuenta">
+Nombre: <input type="text" id="Nombre" name="Nombre">
+Escuela: <input type="text" id="Escuela" name="Escuela">
+<input type="button" name="Enviar" value="Nuevo Registro" onclick="descargarArchivo('inserta')">
+<input type="button" name="Eliminar" value="Eliminar" onclick="descargarArchivo('elimina')">
+</div>
+
+
+<div id="contenidos">
+</div>
+
+<div id="contenidos2">
+</div>
+
+<input type="button" id="tRegistros" name="tRegistros" value="Todos los registros" onclick="descargarArchivo('consulta')">
+</body>
+</html>
